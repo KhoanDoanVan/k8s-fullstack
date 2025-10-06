@@ -1,0 +1,26 @@
+apiVersion: linkerd.io/v1alpha2
+kind: ServiceProfile
+metadata:
+  name: api-service.services.svc.cluster.local
+  namespace: services
+spec:
+  routes:
+  - name: GET /api/data
+    condition:
+      method: GET
+      pathRegex: /api/data
+    responseClasses:
+    - condition:
+      status:
+        min: 500
+        max: 599
+      isFailure: true
+    retries: 3
+    budget:
+      minRetriesPerSecond: 10
+      retryRatio: 0.2
+  - name: POST /api/process
+    condition:
+      method: POST
+      pathRegex: /api/process
+    timeout: 5s
