@@ -1,0 +1,45 @@
+apiVersion: skaffold/v4beta6
+kind: Config
+metadata:
+  name: k8s-project
+build:
+  artifacts:
+    - image: api-service
+      context: services/api-service
+      docker:
+        dockerfile: Dockerfile
+    - image: worker-service
+      context: services/worker-service
+      docker:
+        dockerfile: Dockerfile
+    local:
+      push: false
+deploy:
+  kubectl:
+    manifests:
+    - k8s/namespaces.yaml
+    - k8s/infrastructures/*.yaml
+    - k8s/services/*.yaml
+    - k8s/ingress/*.yaml
+    - k8s/linkerd/*.yaml
+portForward:
+- resourceType: service
+  resourceName: api-service
+  namespace: services
+  port: 8000
+  localPort: 8000
+- resourceType: service
+  resourceName: grafana
+  namespace: infrastructures
+  port: 3000
+  localPort: 3000
+- resourceType: service
+  resourceName: prometheus
+  namespace: infrastructures
+  port: 9090
+  localPort: 9090
+- resourceType: service
+  resourceName: jaeger-query
+  namespace: infrastructures
+  port: 16686
+  localPort: 16686
